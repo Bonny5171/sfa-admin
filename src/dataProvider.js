@@ -1,7 +1,7 @@
 import { fetchUtils } from 'react-admin';
 import { stringify } from 'query-string';
 
-const apiUrl = 'https://api-dot-evmdsfa-snd.appspot.com:443/account/job_log_execution?offset=1&limit=100';
+const apiUrl = 'https://api-dot-evmdsfa-snd.appspot.com:443/account/job_log_execution';
 const httpClient = fetchUtils.fetchJson;
 const options = {};
 options.user = {
@@ -11,15 +11,65 @@ options.user = {
 
 export default {
     getList: (resource, params) => {
-        // const { page, perPage } = params.pagination;
-        // const { field, order } = params.sort;
-        // const query = {
-        //     sort: JSON.stringify([field, order]),
-        //     range: JSON.stringify([(page - 1) * perPage, page * perPage - 1]),
-        //     filter: JSON.stringify(params.filter),
-        // };
+
+        let filter = {};
+        Object.keys(params.filter).forEach(function (key) {
+            // key: the name of the object key
+
+            const defaultListOp = 'eq';
+            const splitKey = key.split('@');
+            const operation = splitKey.length == 2 ? splitKey[1] : defaultListOp;
+
+            let values;
+            if (operation.includes('like')) {
+                // we split the search term in words
+                values = params.filter[key].trim().split(' ');
+            } else {
+                values = [params.filter[key]];
+            }
+
+            values.forEach(value => {
+                let op = operation.includes('like') ? `${operation}.*${value}*` : `${operation}.${value}`;
+                if (filter[splitKey[0]] === undefined) {
+                    // first operator for the key, we add it to the dict
+                    filter[splitKey[0]] = op;
+                }
+                else
+                {
+                    if (!Array.isArray(filter[splitKey[0]])) {
+                        // second operator, we transform to an array
+                        filter[splitKey[0]] = [filter[splitKey[0]], op]
+                    } else {
+                        // third and subsequent, we add to array
+                        filter[splitKey[0]].push(op);
+                    }
+                }
+            });
+
+        });
+
+        console.log("result", filter);
+
+
+        const { page, perPage } = params.pagination;
+        const { field, order } = params.sort;
+        const query = {
+            // sort: JSON.stringify([field, order]),
+            // range: JSON.stringify([(page - 1) * perPage, page * perPage - 1]),
+            order: `${field}.${order.toLowerCase()}`,
+            offset: (page - 1) * perPage,
+            limit: perPage,
+            ...filter,
+        };
+
+        console.log('result:query ', stringify(query));
+
         // const url = `${apiUrl}/${resource}?${stringify(query)}`;
-        const url = `${apiUrl}`;
+        const url = `${apiUrl}?${stringify(query)}`;
+
+        console.log('result:url ', url);
+
+        // const url = `${apiUrl}`;
 
         return httpClient(url, options).then(({ headers, json }) => ({
             data: json,
