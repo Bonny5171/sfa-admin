@@ -1,6 +1,6 @@
 import * as React from "react";
-import { List, Datagrid, TextField, DateField, ChipField, FunctionField, RichTextField,
-  Filter, TextInput, SearchInput, BooleanInput } from 'react-admin';
+import { List, Datagrid, TextField, DateField, ChipField } from 'react-admin';
+import { Pagination } from 'react-admin';
 
 import VisitorListAside from './VisitorListAside';
 
@@ -17,21 +17,22 @@ import VisitorListAside from './VisitorListAside';
 //   </Filter>
 // );
 
-const PostFilter = (props) => (
-  <Filter {...props}>
-      <TextInput label="Search" source="q" alwaysOn />
-      <BooleanInput source="is_published" alwaysOn />
-      <TextInput source="title" defaultValue="Hello, World!" />
-  </Filter>
-);
+// const PostFilter = (props) => (
+//   <Filter {...props}>
+//       <TextInput label="Search" source="q" alwaysOn />
+//       <BooleanInput source="is_published" alwaysOn />
+//       <TextInput source="title" defaultValue="Hello, World!" />
+//   </Filter>
+// );
 
 export const LogList = (props) => (
     <List
       {...props}
       title="Logs"
-      perPage={5}
       // filters={<PostFilter />}
       aside={<VisitorListAside />}
+      perPage={5}
+      pagination={<Pagination rowsPerPageOptions={[5, 10, 15, 20, 40, 100]} {...props} />}
     >
       <Datagrid>
         <TextField source="id" />
@@ -39,9 +40,9 @@ export const LogList = (props) => (
         {/* <TextField source="record_type_id" />  */}
         {/* <DateField source="created_at" showTime /> */}
 
-        <TextField source="created_at" />
+        <DateField source="created_at" locales="pt-BR" showTime />
+        <DateField source="updated_at" locales="pt-BR" showTime />
 
-        <DateField source="updated_at" showTime />
         <TextField source="job_faktory_id" />
         <TextField source="job_scheduler_name" />
         {/* <TextField source="schema_id" /> */}

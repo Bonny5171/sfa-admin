@@ -16,9 +16,9 @@ export default {
         Object.keys(params.filter).forEach(function (key) {
             // key: the name of the object key
 
-            const defaultListOp = 'eq';
+            const defaultListOp = 'like';
             const splitKey = key.split('@');
-            const operation = splitKey.length == 2 ? splitKey[1] : defaultListOp;
+            const operation = splitKey.length === 2 ? splitKey[1] : defaultListOp;
 
             let values;
             if (operation.includes('like')) {
@@ -48,28 +48,16 @@ export default {
 
         });
 
-        console.log("result", filter);
-
-
         const { page, perPage } = params.pagination;
         const { field, order } = params.sort;
         const query = {
-            // sort: JSON.stringify([field, order]),
-            // range: JSON.stringify([(page - 1) * perPage, page * perPage - 1]),
             order: `${field}.${order.toLowerCase()}`,
             offset: (page - 1) * perPage,
             limit: perPage,
             ...filter,
         };
 
-        console.log('result:query ', stringify(query));
-
-        // const url = `${apiUrl}/${resource}?${stringify(query)}`;
         const url = `${apiUrl}?${stringify(query)}`;
-
-        console.log('result:url ', url);
-
-        // const url = `${apiUrl}`;
 
         return httpClient(url, options).then(({ headers, json }) => ({
             data: json,
@@ -83,6 +71,7 @@ export default {
         })),
 
     getMany: (resource, params) => {
+        debugger
         const query = {
             filter: JSON.stringify({ id: params.ids }),
         };
@@ -91,6 +80,8 @@ export default {
     },
 
     getManyReference: (resource, params) => {
+        debugger
+
         const { page, perPage } = params.pagination;
         const { field, order } = params.sort;
         const query = {

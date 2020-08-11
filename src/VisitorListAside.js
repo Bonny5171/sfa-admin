@@ -16,9 +16,6 @@ import {
 import { makeStyles } from '@material-ui/core/styles';
 import SearchIcon from '@material-ui/icons/Search';
 import AccessTimeIcon from '@material-ui/icons/AccessTime';
-import MonetizationOnIcon from '@material-ui/icons/MonetizationOnOutlined';
-import MailIcon from '@material-ui/icons/MailOutline';
-import ErrorOutline from '@material-ui/icons/ErrorOutline';
 import LocalOfferIcon from '@material-ui/icons/LocalOfferOutlined';
 import CancelIcon from '@material-ui/icons/CancelOutlined';
 import { Form } from 'react-final-form';
@@ -30,8 +27,6 @@ import {
     startOfMonth,
     subMonths,
 } from 'date-fns';
-
-// import segments from '../segments/data';
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -59,11 +54,12 @@ const Aside: FC = props => {
 
     console.log('filterValues', filterValues)
     const setFilter = (values: any) => {
+        console.log('filter:', { ...filterValues, ...values });
         setFilters({ ...filterValues, ...values });
     };
 
     const onSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
-        setFilter({ q: event.target ? event.target.value : undefined });
+        setFilter({ job_faktory_id: event.target ? event.target.value : undefined });
     };
 
     const onSubmit = () => undefined;
@@ -120,7 +116,7 @@ const Aside: FC = props => {
                         <TextInput
                             resettable
                             helperText={false}
-                            source="q"
+                            source="job_faktory_id"
                             label="Procurar"
                             InputProps={{
                                 endAdornment: (
@@ -142,7 +138,7 @@ const Aside: FC = props => {
                     <FilterButton
                         value={{
                             created_at: endOfYesterday().toISOString(),
-                            created_at: undefined,
+                            lte: undefined,
                         }}
                         label="Hoje"
                     />
@@ -151,7 +147,7 @@ const Aside: FC = props => {
                             created_at: startOfWeek(
                                 new Date()
                             ).toISOString(),
-                            created_at: undefined,
+                            lte: undefined,
                         }}
                         label="Esta semana"
                     />
@@ -161,7 +157,7 @@ const Aside: FC = props => {
                                 startOfWeek(new Date()),
                                 1
                             ).toISOString(),
-                            created_at: startOfWeek(
+                            lte: startOfWeek(
                                 new Date()
                             ).toISOString(),
                         }}
@@ -172,7 +168,7 @@ const Aside: FC = props => {
                             created_at: startOfMonth(
                                 new Date()
                             ).toISOString(),
-                            created_at: undefined,
+                            lte: undefined,
                         }}
                         label="Este mês"
                     />
@@ -182,7 +178,7 @@ const Aside: FC = props => {
                                 startOfMonth(new Date()),
                                 1
                             ).toISOString(),
-                            created_at: startOfMonth(
+                            lte: startOfMonth(
                                 new Date()
                             ).toISOString(),
                         }}
@@ -191,7 +187,7 @@ const Aside: FC = props => {
                     <FilterButton
                         value={{
                             created_at: undefined,
-                            created_at: subMonths(
+                            lte: subMonths(
                                 startOfMonth(new Date()),
                                 1
                             ).toISOString(),
@@ -200,7 +196,7 @@ const Aside: FC = props => {
                     />
                 </List>
 
-                <FilterSection
+                {/* <FilterSection
                     icon={ErrorOutline}
                     label="Tem erro"
                 />
@@ -213,7 +209,7 @@ const Aside: FC = props => {
                         value={{ has_ordered: false }}
                         label="Não"
                     />
-                </List>
+                </List> */}
 
                 {/* <FilterSection
                     icon={MailIcon}
@@ -230,20 +226,24 @@ const Aside: FC = props => {
                     />
                 </List> */}
 
-                {/* <FilterSection
+                <FilterSection
                     icon={LocalOfferIcon}
-                    label="Segmento"
-                /> */}
+                    label="Status"
+                />
 
-                {/* <List dense disablePadding>
-                    {segments.map(segment => (
+                <List dense disablePadding>
+                    {[
+                        {id: 'success', name: 'Sucesso'},
+                        {id: 'error', name: 'Erro'},
+                        {id: 'overrided', name: 'Overrided'},
+                     ].map(segment => (
                         <FilterButton
-                            value={{ groups: segment.id }}
+                            value={{ status_name: segment.id }}
                             label={segment.name}
                             key={segment.id}
                         />
                     ))}
-                </List> */}
+                </List>
             </CardContent>
         </Card>
     );
