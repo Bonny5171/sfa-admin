@@ -16,7 +16,7 @@ export default {
         Object.keys(params.filter).forEach(function (key) {
             // key: the name of the object key
 
-            const defaultListOp = 'like';
+            const defaultListOp = 'eq';
             const splitKey = key.split('@');
             const operation = splitKey.length === 2 ? splitKey[1] : defaultListOp;
 
@@ -57,8 +57,13 @@ export default {
             ...filter,
         };
 
-        const url = `${apiUrl}?${stringify(query)}`;
+        let url = `${apiUrl}?${stringify(query)}`;
 
+        if (url.indexOf('created_at=') > -1) {
+            url = url.replace('created_at=', 'created_at.');
+        }
+
+        console.log('URL: ', url);
         return httpClient(url, options).then(({ headers, json }) => ({
             data: json,
             total: parseInt(headers.get('content-range').split('/').pop(), 10),
