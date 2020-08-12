@@ -17,6 +17,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import SearchIcon from '@material-ui/icons/Search';
 import AccessTimeIcon from '@material-ui/icons/AccessTime';
 import LocalOfferIcon from '@material-ui/icons/LocalOfferOutlined';
+import EmojiFlagsIcon from '@material-ui/icons/EmojiFlags';
 import CancelIcon from '@material-ui/icons/CancelOutlined';
 import { Form } from 'react-final-form';
 import { TextInput, useTranslate } from 'react-admin';
@@ -71,6 +72,7 @@ const Aside: FC = props => {
             (acc, key) => acc && value[key] == filterValues[key], // eslint-disable-line eqeqeq
             true
         );
+
         const addFilter = () => {
             if (isSelected) {
                 // remove the filter
@@ -131,68 +133,84 @@ const Aside: FC = props => {
                 </Form>
 
                 <FilterSection
+                    icon={EmojiFlagsIcon}
+                    label="Stack"
+                />
+
+                <List dense disablePadding>
+                    {[
+                        {id: 'account', name: 'Clientes'},
+                        {id: 'product', name: 'Produtos'},
+                        {id: 'setup', name: 'Configurações'},
+                        {id: 'order', name: 'Pedidos'},
+                        {id: 'resource', name: 'Mídias'},
+                     ].map(stack => (
+                        <FilterButton
+                            value={{ stack: stack.id }}
+                            label={stack.name}
+                            key={stack.id}
+                        />
+                    ))}
+                </List>
+
+                <FilterSection
                     icon={AccessTimeIcon}
-                    label="Último log"
+                    label="Período"
                 />
                 <List dense disablePadding>
                     <FilterButton
                         value={{
-                            created_at: endOfYesterday().toISOString(),
-                            lte: undefined,
-                        }}
-                        label="Hoje"
-                    />
-                    <FilterButton
-                        value={{
-                            created_at: startOfWeek(
-                                new Date()
-                            ).toISOString(),
-                            lte: undefined,
-                        }}
-                        label="Esta semana"
-                    />
-                    <FilterButton
-                        value={{
-                            created_at: subWeeks(
-                                startOfWeek(new Date()),
-                                1
-                            ).toISOString(),
-                            lte: startOfWeek(
-                                new Date()
-                            ).toISOString(),
-                        }}
-                        label="Semana Anterior"
-                    />
-                    <FilterButton
-                        value={{
-                            created_at: startOfMonth(
-                                new Date()
-                            ).toISOString(),
-                            lte: undefined,
-                        }}
-                        label="Este mês"
-                    />
-                    <FilterButton
-                        value={{
-                            created_at: subMonths(
-                                startOfMonth(new Date()),
-                                1
-                            ).toISOString(),
-                            lte: startOfMonth(
-                                new Date()
-                            ).toISOString(),
-                        }}
-                        label="Mês passado"
-                    />
-                    <FilterButton
-                        value={{
-                            created_at: undefined,
-                            lte: subMonths(
+                            'created_at@gte': undefined,
+                            'created_at@lte': subMonths(
                                 startOfMonth(new Date()),
                                 1
                             ).toISOString(),
                         }}
                         label="Mais cedo"
+                    />
+                    <FilterButton
+                        value={{
+                            'created_at@gte': endOfYesterday().toISOString()
+                        }}
+                        label="Hoje"
+                    />
+                    <FilterButton
+                        value={{
+                            'created_at@gte': startOfWeek(new Date()).toISOString()
+                        }}
+                        label="Esta semana"
+                    />
+                    <FilterButton
+                        value={{
+                            'created_at@gte': subWeeks(
+                                startOfWeek(new Date()),
+                                1
+                            ).toISOString(),
+                            'created_at@lte': startOfWeek(
+                                new Date()
+                            ).toISOString(),
+                        }}
+                        label="Semana Anterior"
+                    />
+                   <FilterButton
+                        value={{
+                            'created_at@gte': startOfMonth(
+                                new Date()
+                            ).toISOString()
+                        }}
+                        label="Este mês"
+                    />
+                   <FilterButton
+                        value={{
+                            'created_at@gte': subMonths(
+                                startOfMonth(new Date()),
+                                1
+                            ).toISOString(),
+                            'created_at@lte': startOfMonth(
+                                new Date()
+                            ).toISOString(),
+                        }}
+                        label="Mês passado"
                     />
                 </List>
 

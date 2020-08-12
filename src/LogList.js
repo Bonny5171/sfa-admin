@@ -1,6 +1,13 @@
 import * as React from "react";
 import { List, Datagrid, TextField, DateField, ChipField } from 'react-admin';
 import { Pagination } from 'react-admin';
+import {
+  endOfYesterday,
+  startOfWeek,
+  subWeeks,
+  startOfMonth,
+  subMonths
+} from 'date-fns';
 
 import VisitorListAside from './VisitorListAside';
 
@@ -33,6 +40,17 @@ export const LogList = (props) => (
       aside={<VisitorListAside />}
       perPage={5}
       pagination={<Pagination rowsPerPageOptions={[5, 10, 15, 20, 40, 100]} {...props} />}
+      // filter={{ stack: 'account' }}
+      filterDefaultValues={{
+        stack: 'account',
+        'created_at@gte': subMonths(
+            startOfMonth(new Date()),
+            1
+        ).toISOString(),
+        'created_at@lte': startOfMonth(
+            new Date()
+        ).toISOString(),
+      }}
     >
       <Datagrid>
         <TextField source="id" />

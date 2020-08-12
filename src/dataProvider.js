@@ -1,7 +1,7 @@
 import { fetchUtils } from 'react-admin';
 import { stringify } from 'query-string';
 
-const apiUrl = 'https://api-dot-evmdsfa-snd.appspot.com:443/account/job_log_execution';
+let apiUrl = 'https://api-dot-evmdsfa-snd.appspot.com:443/account/job_log_execution';
 const httpClient = fetchUtils.fetchJson;
 const options = {};
 options.user = {
@@ -9,14 +9,18 @@ options.user = {
   token: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdGsiOiIwMEQzaDAwMDAwNTdZSzEhQVFVQVFJOEI3YUlKdEdSOHRfVUF3d2tLTnA2Wk5INkFKTjU0cVM3ZEJRTk1OYml5ZUVQanl6N0x5THBJcmlPOTBNeVVDdWVoYW1QM3h2UjFfXzZicDgwTFo3T1hIdWhJIiwiY2lkIjoiM01WRzlLaXA0SUtBWlFFVnZUSmdEZ0I2eW9fZ2gwVkxnLmI5OXE1RjkzMjR1RzZUR3JIM05WRmMuYnRzVUQzVUlIa013SVF1VHNKOWlQanFtTEZzbyIsIm9pZCI6IjAwRDNoMDAwMDA1N1lLMUVBTSIsInRpZCI6MTMsInVpZCI6IjAwNTNoMDAwMDAyWmNvc0FBQyJ9.1FauR3sF4H6gfx0eNlxYkwZwpdbvPJwwIuTQ6Vp3Xz8'
 };
 
+let stack = 'account';
+
 export default {
     getList: (resource, params) => {
 
         let filter = {};
+        let filterDate = '';
+        
         Object.keys(params.filter).forEach(function (key) {
             // key: the name of the object key
 
-            const defaultListOp = 'eq';
+            const defaultListOp = 'like';
             const splitKey = key.split('@');
             const operation = splitKey.length === 2 ? splitKey[1] : defaultListOp;
 
@@ -28,25 +32,37 @@ export default {
                 values = [params.filter[key]];
             }
 
-            values.forEach(value => {
-                let op = operation.includes('like') ? `${operation}.*${value}*` : `${operation}.${value}`;
-                if (filter[splitKey[0]] === undefined) {
-                    // first operator for the key, we add it to the dict
-                    filter[splitKey[0]] = op;
-                }
-                else
-                {
-                    if (!Array.isArray(filter[splitKey[0]])) {
-                        // second operator, we transform to an array
-                        filter[splitKey[0]] = [filter[splitKey[0]], op]
-                    } else {
-                        // third and subsequent, we add to array
-                        filter[splitKey[0]].push(op);
+            if (key === 'stack') {
+                stack = values;
+            } else if (key === 'created_at@lte' || key === 'created_at@gte') {
+                let filterATE = '&and=(FIELD.FILTER.VALUE)';
+                filterDate += filterATE
+                    .replace('FIELD', splitKey[0])
+                    .replace('FILTER', splitKey[1])
+                    .replace('VALUE', escape(values));
+            } else {
+                values.forEach(value => {
+                    let op = operation.includes('like') ? `${operation}.*${value}*` : `${operation}.${value}`;
+                    if (filter[splitKey[0]] === undefined) {
+                        // first operator for the key, we add it to the dict
+                        filter[splitKey[0]] = op;
                     }
-                }
-            });
+                    else
+                    {
+                        if (!Array.isArray(filter[splitKey[0]])) {
+                            // second operator, we transform to an array
+                            filter[splitKey[0]] = [filter[splitKey[0]], op]
+                        } else {
+                            // third and subsequent, we add to array
+                            filter[splitKey[0]].push(op);
+                        }
+                    }
+                });
+            }
 
         });
+
+        console.log('filter:', filter);
 
         const { page, perPage } = params.pagination;
         const { field, order } = params.sort;
@@ -57,13 +73,19 @@ export default {
             ...filter,
         };
 
-        let url = `${apiUrl}?${stringify(query)}`;
-
-        if (url.indexOf('created_at=') > -1) {
-            url = url.replace('created_at=', 'created_at.');
+        if (stack) {
+            apiUrl = apiUrl
+                .replace('/account/', `/${stack}/`)
+                .replace('/product/', `/${stack}/`)
+                .replace('/setup/', `/${stack}/`)
+                .replace('/order/', `/${stack}/`)
+                .replace('/resource/', `/${stack}/`);
         }
+        
+        let url = `${apiUrl}?${stringify(query)}${filterDate}`;
 
-        console.log('URL: ', url);
+        console.log('filter: ', url);
+
         return httpClient(url, options).then(({ headers, json }) => ({
             data: json,
             total: parseInt(headers.get('content-range').split('/').pop(), 10),
@@ -76,7 +98,6 @@ export default {
         })),
 
     getMany: (resource, params) => {
-        debugger
         const query = {
             filter: JSON.stringify({ id: params.ids }),
         };
@@ -85,8 +106,6 @@ export default {
     },
 
     getManyReference: (resource, params) => {
-        debugger
-
         const { page, perPage } = params.pagination;
         const { field, order } = params.sort;
         const query = {
