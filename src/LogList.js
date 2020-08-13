@@ -1,36 +1,9 @@
 import * as React from "react";
 import { List, Datagrid, TextField, DateField, ChipField } from 'react-admin';
 import { Pagination } from 'react-admin';
-import {
-  endOfYesterday,
-  startOfWeek,
-  subWeeks,
-  startOfMonth,
-  subMonths
-} from 'date-fns';
+import { startOfMonth, subMonths } from 'date-fns';
 
 import VisitorListAside from './VisitorListAside';
-
-// const PostFilter = (props) => (
-//   <Filter {...props}>
-//       <TextInput label="Search" source="q" alwaysOn />
-//       <TextInput label="Title" source="title" defaultValue="Hello, World!" />
-//   </Filter>
-// );
-
-// const PostFilter = props => (
-//   <Filter {...props}>
-//       <SearchInput source="q" alwaysOn />
-//   </Filter>
-// );
-
-// const PostFilter = (props) => (
-//   <Filter {...props}>
-//       <TextInput label="Search" source="q" alwaysOn />
-//       <BooleanInput source="is_published" alwaysOn />
-//       <TextInput source="title" defaultValue="Hello, World!" />
-//   </Filter>
-// );
 
 export const LogList = (props) => (
     <List
@@ -39,8 +12,7 @@ export const LogList = (props) => (
       // filters={<PostFilter />}
       aside={<VisitorListAside />}
       perPage={5}
-      pagination={<Pagination rowsPerPageOptions={[5, 10, 15, 20, 40, 100]} {...props} />}
-      // filter={{ stack: 'account' }}
+      pagination={<Pagination rowsPerPageOptions={[5, 10, 15, 20, 40, 100]} {...props} />}      
       filterDefaultValues={{
         stack: 'account',
         'created_at@gte': subMonths(
@@ -64,7 +36,7 @@ export const LogList = (props) => (
         <TextField source="job_faktory_id" />
         <TextField source="job_scheduler_name" />
         {/* <TextField source="schema_id" /> */}
-        <TextField source="doc_meta_data.Type" />
+        {/* <TextField source="doc_meta_data.Type" /> */}
         {/* <RichTextField source="doc_meta_data.Details" /> */}
 
         {/* <FunctionField label="doc_meta_data" render={record => `${record.Type}: ${record.Details}`} /> */}
