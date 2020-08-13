@@ -7,8 +7,11 @@ const options = {};
 options.user = {
   authenticated: true,
   token: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdGsiOiIwMEQzaDAwMDAwNTdZSzEhQVFVQVFJOEI3YUlKdEdSOHRfVUF3d2tLTnA2Wk5INkFKTjU0cVM3ZEJRTk1OYml5ZUVQanl6N0x5THBJcmlPOTBNeVVDdWVoYW1QM3h2UjFfXzZicDgwTFo3T1hIdWhJIiwiY2lkIjoiM01WRzlLaXA0SUtBWlFFVnZUSmdEZ0I2eW9fZ2gwVkxnLmI5OXE1RjkzMjR1RzZUR3JIM05WRmMuYnRzVUQzVUlIa013SVF1VHNKOWlQanFtTEZzbyIsIm9pZCI6IjAwRDNoMDAwMDA1N1lLMUVBTSIsInRpZCI6MTMsInVpZCI6IjAwNTNoMDAwMDAyWmNvc0FBQyJ9.1FauR3sF4H6gfx0eNlxYkwZwpdbvPJwwIuTQ6Vp3Xz8',
-  Prefer: 'count=planned'
 };
+if (!options.headers) {
+    options.headers = new Headers({ Accept: 'application/json' });
+}
+options.headers.set('Prefer', 'count=exact');
 
 let stack = 'account';
 
@@ -63,8 +66,6 @@ export default {
 
         });
 
-        console.log('filter:', filter);
-
         const { page, perPage } = params.pagination;
         const { field, order } = params.sort;
         const query = {
@@ -85,7 +86,6 @@ export default {
         
         let url = `${apiUrl}?${stringify(query)}${filterDate}`;
 
-        console.log('filter: ', url);
 
         return httpClient(url, options).then(({ headers, json }) => ({
             data: json,
